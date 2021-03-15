@@ -4,7 +4,7 @@
 Token::Token(std::string token_type, std::string token_variable_value)
 {
     type = token_type;
-    string_value = token_variable_value;
+    value = token_variable_value;
 };
 
 // Token::Token(std::string token_type, char token_char_value)
@@ -24,7 +24,7 @@ void Token::print_token()
 
     std::cout << "\t token -> "
               << "(" << this->type << ","
-              << this->string_value << ")\n" << std::endl;
+              << this->value << ")\n" << std::endl;
 
 
     // if (this->type == T_IDENTIFIER)
@@ -45,11 +45,7 @@ std::string Token::get_token_type()
 {
     return type;
 };
-std::string Token::get_token_string_value()
+std::string Token::get_token_value()
 {
-    return string_value;
-};
-char Token::get_token_char_value()
-{
-    return char_value;
+    return value;
 };

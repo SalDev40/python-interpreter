@@ -8,18 +8,48 @@
 #include <fstream>
 #include <ctype.h>
 #include "token.h"
+#include <map>
 
 struct NumberNode
 {
-    Token number_token;
-    NumberNode(Token token) { number_token = token; }
+    Token token;
+    NumberNode(Token t) { token = t; }
+    NumberNode() {}
 };
 
-struct BinaryOp
+struct BinaryOpFactors
 {
-    NumberNode left_node;
-    NumberNode right_node;
-    char op;
+    NumberNode *left_node;
+    NumberNode *right_node;
+    std::string op;
+
+    BinaryOpFactors(NumberNode *left_n,
+                    NumberNode *right_n,
+                    std::string opx)
+    {
+        left_node = left_n;
+        right_node = right_n;
+        op = opx;
+    }
+
+    BinaryOpFactors(){};
+};
+struct BinaryOpTerms
+{
+    BinaryOpFactors *left_node;
+    BinaryOpFactors *right_node;
+    std::string op;
+
+    BinaryOpTerms(BinaryOpFactors *left_n,
+                  BinaryOpFactors *right_n,
+                  std::string opx)
+    {
+        left_node = left_n;
+        right_node = right_n;
+        op = opx;
+    }
+
+    BinaryOpTerms(){};
 };
 
 class Parser
@@ -43,7 +73,24 @@ public:
     void advance_current_token_index();
 
     /* will check if the current token is a number and return a number node */
-    NumberNode get_number_factor();
+    NumberNode *factor();
+
+    /*  */
+    BinaryOpFactors *term();
+
+    /*  */
+    BinaryOpTerms expression();
+
+    /* will check if the current token is a number and return a number node */
+    void factor1();
+
+    /*  */
+    void term1();
+
+    /*  */
+    void expression1();
+
+    void run_parser();
 };
 
 #endif

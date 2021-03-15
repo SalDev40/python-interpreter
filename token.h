@@ -30,12 +30,12 @@ class Token
 private:
     std::string type;
     /* token can either be a string or character */
-    std::string string_value;
+    std::string value;
     char char_value;
 
 public:
     /* constructors */
-    Token(std::string type, std::string string_value);
+    Token(std::string type, std::string value);
     // Token(std::string type, char value);
     Token(std::string type);
     Token();
@@ -45,8 +45,7 @@ public:
 
     /* getters */
     std::string get_token_type();
-    std::string get_token_string_value();
-    char get_token_char_value();
+    std::string get_token_value();
 };
 
 #endif
