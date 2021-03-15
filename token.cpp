@@ -17,15 +17,18 @@ Token::Token(std::string token_type)
 {
     type = token_type;
 };
-Token::Token(){};
+Token::Token()
+{
+    type = "N/A";
+};
 
 void Token::print_token()
 {
 
     std::cout << "\t token -> "
               << "(" << this->type << ","
-              << this->value << ")\n" << std::endl;
-
+              << this->value << ")\n"
+              << std::endl;
 
     // if (this->type == T_IDENTIFIER)
     // {
