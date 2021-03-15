@@ -17,6 +17,7 @@ void Parser::advance_current_token_index()
 
 NumberNode Parser::get_number_factor()
 {
+    /* if the current token is an integer or decimal make a number node for AST */
     if (current_token.get_token_type() == T_INT ||
         current_token.get_token_type() == T_DECIMAL)
     {

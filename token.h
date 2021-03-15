@@ -5,6 +5,7 @@
 #include <string>
 
 #define T_END_OF_LIST "EOL"
+#define T_STRING "STRING"
 #define T_INT "INT"
 #define T_DECIMAL "DECIMAL"
 #define T_PLUS "PLUS"
@@ -12,6 +13,8 @@
 #define T_EQUAL "EQUAL"
 #define T_MULTIPLY "MULTIPLY"
 #define T_DIVIDE "DIVIDE"
+#define T_COLON "COLON"
+#define T_SEMICOLON "SEMICOLON"
 #define T_LEFT_PAREN "LEFT_PAREN"
 #define T_RIGHT_PAREN "RIGHT_PAREN"
 #define T_LEFT_BRACKET "LEFT_BRACKET"
@@ -33,7 +36,7 @@ private:
 public:
     /* constructors */
     Token(std::string type, std::string string_value);
-    Token(std::string type, char value);
+    // Token(std::string type, char value);
     Token(std::string type);
     Token();
 
