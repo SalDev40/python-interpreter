@@ -145,7 +145,8 @@ public:
     /*  */
     ExpressionNode *expression();
 
-    void interpret_expression_in_order(ExpressionNode *node, int tabs);
+    void interpret_expression_in_order(ExpressionNode *node, int tabs,
+                                       bool has_a_right_initial_tree);
     void interpret_term_in_order(TermNode *node, int tabs);
 
     void print_expression_in_order(ExpressionNode *node);
