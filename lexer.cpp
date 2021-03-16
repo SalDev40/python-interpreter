@@ -107,7 +107,7 @@ void Lexer::make_tokens(std::string line_to_lex)
                     line_to_lex[i + 1] == ']' ||
                     line_to_lex[i + 1] == '-' ||
                     line_to_lex[i + 1] == '+' ||
-                    line_to_lex[i + 1] == '\\' ||
+                    line_to_lex[i + 1] == '/' ||
                     line_to_lex[i + 1] == '*' ||
                     line_to_lex[i + 1] == '\n' ||
                     line_to_lex[i + 1] == '%' ||
@@ -177,8 +177,8 @@ void Lexer::make_tokens(std::string line_to_lex)
             std::cout << " -> is minus sign";
         }
 
-        /* check if current char is plus sign */
-        else if (line_to_lex[i] == '\\')
+        /* check if current char is divide sign */
+        else if (line_to_lex[i] == '/')
         {
             tokens_list.push_back(Token(T_DIVIDE,
                                         std::string(1, line_to_lex[i])));

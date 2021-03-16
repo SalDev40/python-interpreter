@@ -62,7 +62,9 @@ FactorNode *Parser::factor()
         /* advance token */
         advance_current_token_index();
         ExpressionNode *expr = expression();
-        interpret_expression_in_order(expr);
+
+        /* @TODO: */
+        interpret_expression_in_order(expr, 1);
 
         if (current_token.get_token_type() == T_RIGHT_PAREN)
         {
@@ -113,7 +115,7 @@ TermNode *Parser::term()
 
         /* re assign the left node of term node to be a binary factor node */
         term_node->left_binary_term = new TermNode(
-            term_node->left_binary_term,
+            term_node->left_binary_term, //make this new node leftbinterm previous leftbinterm
             term_node->left_binary_term->left_factor,
             term_node->right_factor,
             term_node->op
@@ -158,8 +160,6 @@ ExpressionNode *Parser::expression()
         /* get right term */
         expression_node->right_term = term();
 
-        /* @TODO: issue of overwritting previous right side node */
-
         /* re assign the left node of expression node to be a binary term node */
         expression_node->left_binary_expression = new ExpressionNode(
             expression_node->left_binary_expression,
@@ -170,15 +170,25 @@ ExpressionNode *Parser::expression()
         );
     }
 
+    /* drop first node since it duplicates */
+    expression_node->left_binary_expression =
+        expression_node->left_binary_expression->left_binary_expression;
+
     std::cout << "\n\tExit <expr>\n"
               << std::endl;
 
     return expression_node;
 }
 
-void Parser::interpret_expression_in_order(ExpressionNode *node)
+void Parser::interpret_expression_in_order(ExpressionNode *node, int tabs)
 {
-    std::cout << "\n<expr> ENTER INTERPRET INORDER <expr>\n"
+
+    /* print nested tabs */
+    for (int i = 0; i < tabs + 1; i++)
+    {
+        std::cout << "\t";
+    }
+    std::cout << "<expr> " << tabs << " ENTER INTERPRET INORDER <expr>\n"
               << std::endl;
 
     std::string right_result_token;
@@ -186,15 +196,35 @@ void Parser::interpret_expression_in_order(ExpressionNode *node)
     std::string right_result;
     std::string left_result;
 
-    if (node == nullptr)
+    // if (node->right_term == nullptr)
+    if (node->right_term == nullptr)
+    {
+        for (int i = 0; i < tabs + 2; i++)
+        {
+            std::cout << "\t";
+        }
+        std::cout << "End of Tree";
+        std::cout << std::endl
+                  << std::endl;
         return;
+    }
     else
     {
-        /* traverse left side of the tree */
+        /* traverse all expressions till you get to last expression of terms */
+        interpret_expression_in_order(node->left_binary_expression, tabs + 1);
+
+        /* print nested tabs */
+        for (int i = 0; i < tabs + 2; i++)
+        {
+            std::cout << "\t";
+        }
+
+        /* traverse left side of the expression node */
         if (node->left_term)
         {
-            std::cout << "\n\t<expr> ENTER INORDER LEFT TERM <expr>\n\n";
-            interpret_term_in_order(node->left_term, 1);
+            std::cout << "\t<expr> ****** ENTER INORDER LEFT TERM ****** <expr>\n\n";
+
+            interpret_term_in_order(node->left_term, tabs + 3);
 
             /* get the final left result value from the top node */
             left_result =
@@ -203,73 +233,153 @@ void Parser::interpret_expression_in_order(ExpressionNode *node)
             left_result_token =
                 node->left_term->left_factor->token.get_token_type();
 
-            std::cout << "\n\t\t LEFT RESULT = "
-                      << left_result;
+            /* print nested tabs */
+            for (int i = 0; i < tabs + 2; i++)
+            {
+                std::cout << "\t";
+            }
 
-            std::cout << "\n\n\t<expr> EXIT INORDER LEFT TERM <expr>\n\n";
+            std::cout << "\t!!!!! LEFT RESULT = "
+                      << left_result << std::endl
+                      << std::endl;
+
+            /* print nested tabs */
+            for (int i = 0; i < tabs + 2; i++)
+            {
+                std::cout << "\t";
+            }
+
+            std::cout << "\t<expr> ****** EXIT INORDER LEFT TERM ****** <expr>\n\n";
         }
 
+        /* print nested tabs */
+        for (int i = 0; i < tabs + 2; i++)
+        {
+            std::cout << "\t";
+        }
         /* print operator to use */
         std::cout << " OP -> \t\t\t "
-                  << node->op.get_token_value() << " " << std::endl;
+                  << node->op.get_token_value() << "\n\n"
+                  << std::endl;
 
-        /* traverse right side of the tree */
+        /* traverse right side of the expression node */
         if (node->right_term)
         {
-            std::cout << "\n\t<expr> ENTER INORDER RIGHT TERM <expr>\n\n";
+            /* print nested tabs */
+            for (int i = 0; i < tabs + 2; i++)
+            {
+                std::cout << "\t";
+            }
+            std::cout << "\t<expr> ****** ENTER INORDER RIGHT TERM ******<expr>\n\n";
 
-            interpret_term_in_order(node->right_term, 1);
+            interpret_term_in_order(node->right_term, tabs + 3);
 
             right_result = node->right_term->left_factor->token.get_token_value();
             right_result_token = node->right_term->left_factor->token.get_token_type();
 
-            std::cout << "\n\t\t RIGHT RESULT = "
-                      << right_result;
+            /* print nested tabs */
+            for (int i = 0; i < tabs + 2; i++)
+            {
+                std::cout << "\t";
+            }
 
-            std::cout << "\n\n\t<expr> EXIT INORDER RIGHT TERM <expr>\n\n";
+            std::cout << "\t!!!!!! RIGHT RESULT = "
+                      << right_result << std::endl
+                      << std::endl;
+
+            /* print nested tabs */
+            for (int i = 0; i < tabs + 2; i++)
+            {
+                std::cout << "\t";
+            }
+
+            std::cout << "\t<expr> ****** EXIT INORDER RIGHT TERM ******<expr>\n\n";
         }
     }
 
-    /* calculate the final result */
+    /* calculate the final result and store it in left node of the current node
+       next expression before it will read from it recursively
+    */
+
+    /* print nested tabs */
+    for (int i = 0; i < tabs + 2; i++)
+    {
+        std::cout << "\t";
+    }
     if (node->left_term && !node->right_term)
     {
-        std::cout << "\nTOTAL = " << stoi(left_result) << std::endl;
+        std::cout << "!!!!!! TOTAL = " << stoi(left_result) << std::endl
+                  << std::endl;
+
+        /* make the left term a new node and store the updated value in it
+                will be read by previous node above it  */
+        delete node->left_term;
+        node->left_term = new TermNode();
+        node->left_term->left_factor = new FactorNode();
+        node->left_term->left_factor->token =
+            Token(node->left_term->left_factor->token.get_token_type(),
+                  std::to_string(stoi(left_result)));
     }
 
     if (node->right_term && !node->left_term)
     {
-        std::cout << "\nTOTAL = " << stoi(right_result) << std::endl;
+        std::cout << "!!!!!! TOTAL = " << stoi(right_result) << std::endl
+                  << std::endl;
+
+        /* make the left term a new node and store the updated value in it
+                will be read by previous node above it  */
+        delete node->left_term;
+        node->left_term = new TermNode();
+        node->left_term->left_factor = new FactorNode();
+        node->left_term->left_factor->token =
+            Token(node->left_term->left_factor->token.get_token_type(),
+                  std::to_string(stoi(right_result)));
     }
 
+    /* add left and right terms */
     if (node->left_term && node->right_term)
     {
-        if (node->op.get_token_type() == T_DIVIDE)
-        {
-            std::cout << " TOTAL = "
-                      << stoi(left_result) / stoi(right_result) << std::endl;
-        }
-        if (node->op.get_token_type() == T_MULTIPLY)
-        {
-            std::cout << " TOTAL = "
-                      << stoi(left_result) * stoi(right_result) << std::endl;
-        }
         if (node->op.get_token_type() == T_PLUS)
         {
-            std::cout << " TOTAL = "
-                      << stoi(left_result) + stoi(right_result) << std::endl;
+            std::cout << "!!!!!! TOTAL = "
+                      << stoi(left_result) + stoi(right_result) << std::endl
+                      << std::endl;
+
+            /* make the left term a new node and store the updated value in it
+                will be read by previous node above it  */
+            delete node->left_term;
+            node->left_term = new TermNode();
+            node->left_term->left_factor = new FactorNode();
+            node->left_term->left_factor->token =
+                Token(node->left_term->left_factor->token.get_token_type(),
+                      std::to_string(stoi(left_result) + stoi(right_result)));
         }
         if (node->op.get_token_type() == T_MINUS)
         {
-            std::cout << " TOTAL = "
-                      << stoi(left_result) - stoi(right_result) << std::endl;
+            std::cout << "!!!!!! TOTAL = "
+                      << stoi(left_result) - stoi(right_result) << std::endl
+                      << std::endl;
+
+            /* make the left term a new node and store the updated value in it
+                will be read by previous node above it  */
+            delete node->left_term;
+            node->left_term = new TermNode();
+            node->left_term->left_factor = new FactorNode();
+            node->left_term->left_factor->token =
+                Token(node->left_term->left_factor->token.get_token_type(),
+                      std::to_string(stoi(left_result) - stoi(right_result)));
         }
     }
 
-    std::cout << "\n<expr> EXIT INORDER <expr>\n"
+    /* print nested tabs */
+    for (int i = 0; i < tabs + 1; i++)
+    {
+        std::cout << "\t";
+    }
+    std::cout << "<expr>  " << tabs << " EXIT INORDER <expr>\n"
               << std::endl;
 }
 
-/* @TODO: crashes after a certain amount of numbers */
 void Parser::interpret_term_in_order(TermNode *node, int tabs)
 {
     /* print nested tabs */
@@ -282,8 +392,18 @@ void Parser::interpret_term_in_order(TermNode *node, int tabs)
               << tabs << " ENTER INORDER  <term>\n"
               << std::endl;
 
-    if (node == nullptr)
+    /* @FIXME: issue is that sometimes the left->binary even tho its empty
+    its not null its 0xf , but the last node right_factor is always null
+    */
+    if (node->right_factor == nullptr)
     {
+        for (int i = 0; i < tabs + 2; i++)
+        {
+            std::cout << "\t";
+        }
+        std::cout << "End of Tree";
+        std::cout << std::endl
+                  << std::endl;
         return;
     }
     else
@@ -401,8 +521,8 @@ void Parser::run_parser()
     std::cout << "*************************************\n";
     std::cout << "*************************************\n";
 
-    // interpret_expression_in_order(head_ast);
-    print_expression_in_order(head_ast);
+    interpret_expression_in_order(head_ast, 1);
+    // print_expression_in_order(head_ast);
 }
 
 /* 
@@ -457,7 +577,14 @@ void Parser::print_term_in_order(TermNode *node, int tabs)
 
     if (node == nullptr)
     {
-        std::cout << "<h ";
+        for (int i = 0; i < tabs + 2; i++)
+        {
+            std::cout << "\t";
+        }
+        std::cout << "End of Tree";
+        std::cout << std::endl
+                  << std::endl;
+
         return;
     }
     else
@@ -468,12 +595,11 @@ void Parser::print_term_in_order(TermNode *node, int tabs)
         {
             std::cout << "\t";
         }
-        std::cout << "<h> ";
 
         if (node->left_factor)
             std::cout << "(" << node->left_factor->token.get_token_type()
                       << "," << node->left_factor->token.get_token_value()
-                      << ")";
+                      << "),";
 
         if (node->right_factor)
             std::cout << "(" << node->right_factor->token.get_token_type()
@@ -494,6 +620,8 @@ void Parser::print_term_in_order(TermNode *node, int tabs)
         std::cout << "<term> "
                   << tabs << " EXIT PRINT INORDER <term>\n"
                   << std::endl;
+
+        return;
     }
 }
 
@@ -509,6 +637,7 @@ void Parser::print_expression_pre_order(ExpressionNode *node)
               << std::endl;
 
     if (node == nullptr)
+
         return;
     else
     {
@@ -550,6 +679,14 @@ void Parser::print_term_pre_order(TermNode *node, int tabs)
 
     if (node == nullptr)
     {
+
+        for (int i = 0; i < tabs + 2; i++)
+        {
+            std::cout << "\t";
+        }
+        std::cout << "End of Tree";
+        std::cout << std::endl
+                  << std::endl;
         return;
     }
     else
@@ -567,7 +704,7 @@ void Parser::print_term_pre_order(TermNode *node, int tabs)
         if (node->left_factor)
             std::cout << "(" << node->left_factor->token.get_token_type()
                       << "," << node->left_factor->token.get_token_value()
-                      << ")";
+                      << "),";
 
         if (node->right_factor)
             std::cout << "(" << node->right_factor->token.get_token_type()
