@@ -36,6 +36,7 @@ void Lexer::make_tokens(std::string line_to_lex)
     {
         std::cout << "\n************\n-> current symbol:  "
                   << line_to_lex[i] << std::endl;
+
         // /* skip if its a space */
         // if (std::isspace(line_to_lex[i]))
         // {
@@ -86,7 +87,6 @@ void Lexer::make_tokens(std::string line_to_lex)
             tokens_list.push_back(Token(T_STRING, str_formed));
         }
 
-        /* @TODO: check if current char is a variable */
         else if (std::isalpha(line_to_lex[i]))
         {
             std::cout << "\n -> checking if its a variable" << std::endl;
@@ -123,7 +123,8 @@ void Lexer::make_tokens(std::string line_to_lex)
             };
 
             std::cout << std::endl;
-            /* @TODO: check if string formed is a keyword */
+
+            /* check if string formed is a key word */
             if (str_formed == T_KEYWORD_IF)
             {
                 std::cout << "\n -> is a keyword -> " << str_formed << std::endl;

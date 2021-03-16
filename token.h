@@ -36,7 +36,6 @@ private:
 public:
     /* constructors */
     Token(std::string type, std::string value);
-    // Token(std::string type, char value);
     Token(std::string type);
     Token();
 
