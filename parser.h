@@ -1,12 +1,13 @@
 #ifndef PARSER_H
 #define PARSER_H
-
+#include <bits/stdc++.h>
 #include <iostream>
 #include <string>
 #include <list>
 #include <vector>
 #include <fstream>
 #include <ctype.h>
+#include <tuple>
 #include "token.h"
 #include <map>
 
@@ -118,8 +119,8 @@ class Parser
 private:
     size_t current_token_index;
     Token current_token;
-    /* pointer to current tokens list */
-    std::vector<Token> tokens_list;
+    std::vector<Token> *tokens_list;
+    std::unordered_map<std::string, Token> *symbol_table;
 
     /* pointer to head of AST */
     ExpressionNode *head_ast = nullptr;
@@ -128,7 +129,8 @@ public:
     /* will intialize the parsers token list to the 
        address of the lexer generatedtoken list */
     Parser();
-    Parser(std::vector<Token> lexer_tokens_list);
+    Parser(std::vector<Token> *lexer_tokens_list,
+           std::unordered_map<std::string, Token> *lexer_symbol_table);
 
     /* will get the current token from token list */
     Token get_current_token();
@@ -144,6 +146,7 @@ public:
 
     /*  */
     ExpressionNode *expression();
+    ExpressionNode *arithmetic_expression();
 
     void interpret_expression_in_order(ExpressionNode *node, int tabs,
                                        bool has_a_right_initial_tree);
@@ -156,6 +159,10 @@ public:
     void print_term_pre_order(TermNode *node, int tabs);
 
     void run_parser();
+
+    void print_symbol_table(std::unordered_map<std::string, Token> *symbol_table);
+
+    Token search_key_in_map(std::string);
 };
 
 #endif

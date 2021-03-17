@@ -29,9 +29,7 @@ class Token
 {
 private:
     std::string type;
-    /* token can either be a string or character */
     std::string value;
-    char char_value;
 
 public:
     /* constructors */

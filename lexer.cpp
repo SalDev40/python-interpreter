@@ -1,33 +1,21 @@
 #include "lexer.h"
 
-Lexer::Lexer(std::string file_name)
+Lexer::Lexer(std::vector<Token> *tk_list,
+             std::unordered_map<std::string, Token> *sym_tab)
 {
-    input_file_name = file_name;
+    tokens_list = tk_list;
+    symbol_table = sym_tab;
 };
 
-void Lexer::run_lexer()
+void Lexer::run_lexer(std::string line)
 {
-    std::cout << "reading in file " << input_file_name << std::endl;
 
-    /* read input file line by line */
-    std::ifstream input(input_file_name);
+    std::cout << "\n***************************** " << std::endl;
+    std::cout << "current line to lex -> " << line << std::endl;
+    std::cout << "***************************** " << std::endl;
 
-    /* @TODO: make sure to get end of line terminator \n */
-    for (std::string line; getline(input, line);)
-    {
-        /* skip commented out lines */
-        if (line[0] == '#')
-            continue;
-
-        std::cout << "\n***************************** " << std::endl;
-        std::cout << "current line to lex -> " << line << std::endl;
-        std::cout << "***************************** " << std::endl;
-
-        /* make tokens from the given line */
-        make_tokens(line);
-    }
-
-    input.close();
+    /* make tokens from the given line */
+    make_tokens(line);
 };
 
 void Lexer::make_tokens(std::string line_to_lex)
@@ -66,7 +54,7 @@ void Lexer::make_tokens(std::string line_to_lex)
             std::cout << std::endl;
             std::cout
                 << "\n -> is a digit -> " << str_formed;
-            tokens_list.push_back(Token(T_INT, str_formed));
+            tokens_list->push_back(Token(T_INT, str_formed));
         }
 
         /* check if the current char is a quotation  */
@@ -84,8 +72,10 @@ void Lexer::make_tokens(std::string line_to_lex)
 
             std::cout << std::endl;
             std::cout << "\n -> is a string -> " << str_formed << std::endl;
-            tokens_list.push_back(Token(T_STRING, str_formed));
+            tokens_list->push_back(Token(T_STRING, str_formed));
         }
+
+        /* check if its  identifier or keyword */
 
         else if (std::isalpha(line_to_lex[i]))
         {
@@ -96,11 +86,13 @@ void Lexer::make_tokens(std::string line_to_lex)
             while (true)
             {
                 std::cout << "\n\t current char:  " << line_to_lex[i];
+
                 str_formed += line_to_lex[i];
 
                 /* break if the next character is not part of  the str_formed */
                 if (
                     line_to_lex[i + 1] == '=' ||
+                    line_to_lex[i + 1] == '\0' ||
                     line_to_lex[i + 1] == '(' ||
                     line_to_lex[i + 1] == ')' ||
                     line_to_lex[i + 1] == '[' ||
@@ -122,110 +114,111 @@ void Lexer::make_tokens(std::string line_to_lex)
                 i++;
             };
 
+            
+
             std::cout << std::endl;
 
             /* check if string formed is a key word */
             if (str_formed == T_KEYWORD_IF)
             {
                 std::cout << "\n -> is a keyword -> " << str_formed << std::endl;
-                tokens_list.push_back(Token(T_KEYWORD_IF, str_formed));
+                tokens_list->push_back(Token(T_KEYWORD_IF, str_formed));
             }
             if (str_formed == T_KEYWORD_ELIF)
             {
                 std::cout << "\n -> is a keyword -> " << str_formed << std::endl;
-                tokens_list.push_back(Token(T_KEYWORD_ELIF, str_formed));
+                tokens_list->push_back(Token(T_KEYWORD_ELIF, str_formed));
             }
             else if (str_formed == T_KEYWORD_ELSE)
             {
                 std::cout << "\n -> is a keyword -> " << str_formed << std::endl;
-                tokens_list.push_back(Token(T_KEYWORD_ELSE, str_formed));
+                tokens_list->push_back(Token(T_KEYWORD_ELSE, str_formed));
             }
             else if (str_formed == T_KEYWORD_PRINT)
             {
                 std::cout << "\n -> is a keyword -> " << str_formed << std::endl;
-                tokens_list.push_back(Token(T_KEYWORD_PRINT, str_formed));
+                tokens_list->push_back(Token(T_KEYWORD_PRINT, str_formed));
             }
             else
             {
-                /* @TODO: if string formed is a variable store in symbol map  */
                 std::cout << "\n -> is a variable -> " << str_formed << std::endl;
-                tokens_list.push_back(Token(T_IDENTIFIER, str_formed));
+                tokens_list->push_back(Token(T_IDENTIFIER, str_formed));
             }
         }
 
         /* check if current char is equal sign */
         else if (line_to_lex[i] == '=')
         {
-            tokens_list.push_back(Token(T_EQUAL,
-                                        std::string(1, line_to_lex[i])));
+            tokens_list->push_back(Token(T_EQUAL,
+                                         std::string(1, line_to_lex[i])));
             std::cout << " -> is equal sign";
         }
 
         /* check if current char is plus sign */
         else if (line_to_lex[i] == '+')
         {
-            tokens_list.push_back(Token(T_PLUS,
-                                        std::string(1, line_to_lex[i])));
+            tokens_list->push_back(Token(T_PLUS,
+                                         std::string(1, line_to_lex[i])));
             std::cout << " -> is plus sign";
         }
 
         /* check if current char is plus sign */
         else if (line_to_lex[i] == '-')
         {
-            tokens_list.push_back(Token(T_MINUS,
-                                        std::string(1, line_to_lex[i])));
+            tokens_list->push_back(Token(T_MINUS,
+                                         std::string(1, line_to_lex[i])));
             std::cout << " -> is minus sign";
         }
 
         /* check if current char is divide sign */
         else if (line_to_lex[i] == '/')
         {
-            tokens_list.push_back(Token(T_DIVIDE,
-                                        std::string(1, line_to_lex[i])));
+            tokens_list->push_back(Token(T_DIVIDE,
+                                         std::string(1, line_to_lex[i])));
             std::cout << " -> is divide sign";
         }
 
         /* check if current char is plus sign */
         else if (line_to_lex[i] == '*')
         {
-            tokens_list.push_back(Token(T_MULTIPLY,
-                                        std::string(1, line_to_lex[i])));
+            tokens_list->push_back(Token(T_MULTIPLY,
+                                         std::string(1, line_to_lex[i])));
             std::cout << " -> is multiply sign";
         }
         else if (line_to_lex[i] == '[')
         {
-            tokens_list.push_back(Token(T_LEFT_BRACKET,
-                                        std::string(1, line_to_lex[i])));
+            tokens_list->push_back(Token(T_LEFT_BRACKET,
+                                         std::string(1, line_to_lex[i])));
             std::cout << " -> is left bracket sign";
         }
         else if (line_to_lex[i] == ']')
         {
-            tokens_list.push_back(Token(T_RIGHT_BRACKET,
-                                        std::string(1, line_to_lex[i])));
+            tokens_list->push_back(Token(T_RIGHT_BRACKET,
+                                         std::string(1, line_to_lex[i])));
             std::cout << " -> is right bracket sign";
         }
         else if (line_to_lex[i] == '(')
         {
-            tokens_list.push_back(Token(T_LEFT_PAREN,
-                                        std::string(1, line_to_lex[i])));
+            tokens_list->push_back(Token(T_LEFT_PAREN,
+                                         std::string(1, line_to_lex[i])));
             std::cout << " -> is left paren sign";
         }
         else if (line_to_lex[i] == ')')
         {
-            tokens_list.push_back(Token(T_RIGHT_PAREN,
-                                        std::string(1, line_to_lex[i])));
+            tokens_list->push_back(Token(T_RIGHT_PAREN,
+                                         std::string(1, line_to_lex[i])));
             std::cout << " -> is right paren sign";
         }
         else if (line_to_lex[i] == ':')
         {
-            tokens_list.push_back(Token(T_COLON,
-                                        std::string(1, line_to_lex[i])));
+            tokens_list->push_back(Token(T_COLON,
+                                         std::string(1, line_to_lex[i])));
             std::cout << " -> is colon paren sign";
         }
         else if (line_to_lex[i] == ';')
         {
-            tokens_list.push_back(Token(T_SEMICOLON,
-                                        std::string(1, line_to_lex[i])));
+            tokens_list->push_back(Token(T_SEMICOLON,
+                                         std::string(1, line_to_lex[i])));
             std::cout << " -> is semicolon paren sign";
         }
         else
@@ -242,13 +235,8 @@ void Lexer::print_tokens_list()
     std::cout << "-> current tokens list: " << std::endl;
     std::cout << "***************************** " << std::endl;
 
-    for (auto i : tokens_list)
+    for (auto it = tokens_list->begin(); it != tokens_list->end(); it++)
     {
-        i.print_token();
+        it->print_token();
     }
-};
-
-std::vector<Token> Lexer::get_tokens_list()
-{
-    return tokens_list;
 };
