@@ -3,12 +3,15 @@
 #include <bits/stdc++.h>
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include <list>
+#include "lexer.h"
 #include <vector>
 #include <fstream>
 #include <ctype.h>
 #include <tuple>
 #include "token.h"
+#include <assert.h>
 #include <map>
 
 struct FactorNode
@@ -122,15 +125,19 @@ private:
     std::vector<Token> *tokens_list;
     std::unordered_map<std::string, Token> *symbol_table;
 
-    /* pointer to head of AST */
-    ExpressionNode *head_ast = nullptr;
+    bool *should_do_if_statement;
+    bool *should_do_else_statement;
+    bool *is_if_done;
+
 
 public:
     /* will intialize the parsers token list to the 
        address of the lexer generatedtoken list */
     Parser();
     Parser(std::vector<Token> *lexer_tokens_list,
-           std::unordered_map<std::string, Token> *lexer_symbol_table);
+           std::unordered_map<std::string, Token> *lexer_symbol_table,
+           bool *should_do_if_s,
+           bool *should_do_else_s, bool *should_do_elif_s);
 
     /* will get the current token from token list */
     Token get_current_token();
@@ -152,17 +159,8 @@ public:
                                        bool has_a_right_initial_tree);
     void interpret_term_in_order(TermNode *node, int tabs);
 
-    void print_expression_in_order(ExpressionNode *node);
-    void print_term_in_order(TermNode *node, int tabs);
+    void run_parser(std::string current_line);
 
-    void print_expression_pre_order(ExpressionNode *node);
-    void print_term_pre_order(TermNode *node, int tabs);
-
-    void run_parser();
-
-    void print_symbol_table(std::unordered_map<std::string, Token> *symbol_table);
-
-    Token search_key_in_map(std::string);
 };
 
 #endif

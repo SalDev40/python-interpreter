@@ -1,0 +1,13 @@
+##overiding
+a=45
+b=65
+c=67
+s=a+b+c
+a=s+b
+c=a+b
+b=a+c
+s=a+b+c
+print(a)
+print(b)
+print(c)
+print(s)

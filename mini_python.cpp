@@ -3,36 +3,21 @@
 #include "lexer.h"
 #include "parser.h"
 
-void print_symbol_table(std::unordered_map<std::string, Token> *symbol_table)
-{
-    std::cout << "\n*************************************\n";
-    std::cout << "SYMBOL TABLE: " << std::endl;
-    std::cout << "*************************************\n";
-
-    for (auto it = symbol_table->begin(); it != symbol_table->end(); it++)
-    {
-        std::cout << "variable_name: " << it->first;
-        it->second.print_token();
-    }
-}
-
-int main()
+int main(int argc, char **argv)
 {
 
     std::unordered_map<std::string, Token> symbol_table;
-    std::string input_file_name = "./testcases/tc1.py";
+    std::string input_file_name = argv[1];
 
     std::ifstream input(input_file_name);
 
-    std::cout << "reading in file "
-              << input_file_name << std::endl;
+    bool should_do_if_statement = true;
+    bool should_do_else_statement = true;
+    bool is_if_done = true;
 
-    std::string input_dummy;
-
-    /* @TODO: error intepreting last line for some reason */
     for (std::string line; getline(input, line);)
     {
-
+        /* skip all empty and commented out lines */
         if (line == "" || line[0] == '#')
         {
             continue;
@@ -40,15 +25,25 @@ int main()
 
         if (line[line.length() - 1] == '\0')
         {
-            std::cout << "trimming line " << std::endl;
+            line.pop_back();
+        }
+        if (line[line.length() - 1] == ';')
+        {
             line.pop_back();
         }
 
-        std::cout << "\n\n*************************************\n";
-        std::cout << "*************************************\n";
-        std::cout << "LEXER: " << std::endl;
-        std::cout << "*************************************\n";
-        std::cout << "*************************************\n";
+        if (should_do_if_statement == false && is_if_done == true)
+        {
+            if (line[0] == ' ')
+                continue;
+        }
+
+        else if (should_do_else_statement == false &&
+                 is_if_done == true)
+        {
+            if (line[0] == ' ')
+                continue;
+        }
 
         std::vector<Token> tokens_list;
 
@@ -57,21 +52,19 @@ int main()
             &symbol_table);
 
         lexer.run_lexer(line);
-        lexer.print_tokens_list();
-
-        std::cout << "*************************************\n";
-        std::cout << "*************************************\n";
-        std::cout << "PARSER: " << std::endl;
-        std::cout << "*************************************\n";
-        std::cout << "*************************************\n";
-
         Parser parser = Parser(&tokens_list,
-                               &symbol_table);
-        parser.run_parser();
+                               &symbol_table,
+                               &should_do_if_statement,
+                               &should_do_else_statement,
+                               &is_if_done
 
-        print_symbol_table(&symbol_table);
+        );
+        parser.run_parser(line);
 
-        // std::cin >> input_dummy;
+
+        should_do_if_statement = true;
+
+       
     }
     input.close();
 
